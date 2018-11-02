@@ -261,6 +261,9 @@ class Gridworld:
         optimalStates.append([x, y])
         
         while not self.isTerminal([x,y]):
+            if self.isOutOfBounds(x, y):
+                continue
+
             _, direction = self.getOptimalActionValue([x,y])
             x, y = self.getNewCoordinatesBasedOnDirection(x, y, direction)
             optimalStates.append([x,y])
@@ -304,7 +307,7 @@ class Gridworld:
         
 
         axes.grid(which='minor', alpha=0.5)
-        plt.xlabel(title)
+        plt.title(title)
         
 
 
