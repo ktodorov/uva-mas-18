@@ -25,22 +25,22 @@ def eps_greedy(state, Q, eps):
 
 def qDictToMatrix(Q, gridworld):
     width, height = len(gridworld.grid), len(gridworld.grid[0])
-    actionValueMatrix = np.empty((width, height))
+    m = np.empty((width, height))
 
     for x in range(width):
         for y in range(height):
             state = (x,y)
             qs = [Q[((state), 0)], Q[(state, 1)], Q[(state, 2)], Q[(state, 3)]]
-            actionValueMatrix[x][y] = np.max(qs)
+            m[x][y] = np.max(qs)
 
             r = gridworld.get_state_reward(state)
             if(r != gridworld.move_value):
-                actionValueMatrix[x][y] = r
+                m[x][y] = r
 
             if(gridworld.grid[x][y] == '#'):
-                actionValueMatrix[x][y] = None
+                m[x][y] = None
 
-    return actionValueMatrix
+    return m
 
 def plotQ(Q, gridworld, title=''):
     m = qDictToMatrix(Q, gridworld)
