@@ -8,9 +8,9 @@ columns = 10
 startX = 4
 startY = 0
 greedification = 1
-epsGreedy = 0.1
+epsGreedy = 0.9
 maxEpisodes = 500
-runs = 1#20
+runs = 1
 
 def getReward(x, y):
     if x == rows - 1 and y > 0:
@@ -51,13 +51,29 @@ def getMovingAverage(listToAverage):
 
     return movingAverages
 
-sarsaEpisodeRewards = np.empty(maxEpisodes)
-qlearningEpisodeRewards = np.empty(maxEpisodes)
+def plotSpecialStates(gridworld):
+    gridworld.plotLetter(4, 0, 'S')
 
+    gridworld.colorRectangle(4, 1)
+    gridworld.colorRectangle(4, 2)
+    gridworld.colorRectangle(4, 3)
+    gridworld.colorRectangle(4, 4)
+    gridworld.colorRectangle(4, 5)
+    gridworld.colorRectangle(4, 6)
+    gridworld.colorRectangle(4, 7)
+    gridworld.colorRectangle(4, 8)
+
+    gridworld.plotLetter(4, 9, 'G')
+
+sarsaEpisodeRewards = np.empty(maxEpisodes)
+qLearningEpisodeRewards = np.empty(maxEpisodes)
 
 for i in range(runs):
     gridworld = Gridworld(rows, columns, startX, startY, greedification, True, False, epsGreedy, getReward, isTerminalState, PolicyType.SARSA)
     currentEpisodeRewards = gridworld.runSimulation(maxEpisodes=maxEpisodes)
+
+    plotSpecialStates(gridworld)
+    gridworld.plotOptimalPath(title="SARSA - Optimal path")
     if i > 0:
         for j in range(maxEpisodes):
             sarsaEpisodeRewards[j] = (sarsaEpisodeRewards[j] + currentEpisodeRewards[j]) / 2
@@ -67,13 +83,16 @@ for i in range(runs):
 for i in range(runs):
     gridworld = Gridworld(rows, columns, startX, startY, greedification, True, False, epsGreedy, getReward, isTerminalState, PolicyType.QLEARNING)
     currentEpisodeRewards = gridworld.runSimulation(maxEpisodes=maxEpisodes)
+
+    plotSpecialStates(gridworld)
+    gridworld.plotOptimalPath(title="Q-Learning - Optimal path")
     if i > 0:
         for j in range(maxEpisodes):
-            qlearningEpisodeRewards[j] = (qlearningEpisodeRewards[j] + currentEpisodeRewards[j]) / 2
+            qLearningEpisodeRewards[j] = (qLearningEpisodeRewards[j] + currentEpisodeRewards[j]) / 2
     else:
-        qlearningEpisodeRewards = currentEpisodeRewards
+        qLearningEpisodeRewards = currentEpisodeRewards
 
 # sarsaAverage = getMovingAverage(sarsaEpisodeRewards)
-# qlearningAverage = getMovingAverage(qlearningEpisodeRewards)
-# plot(sarsaAverage, "red", "SARSA", qlearningAverage, "blue", "Q-Learning", "Episodes", "Sum of rewards during episode")
+# qLearningAverage = getMovingAverage(qLearningEpisodeRewards)
+# plot(sarsaAverage, "red", "SARSA", qLearningAverage, "blue", "Q-Learning", "Episodes", "Sum of rewards during episode")
 # plotQuiver(sarsaEpisodeRewards)

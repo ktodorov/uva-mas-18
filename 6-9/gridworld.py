@@ -4,7 +4,7 @@ from collections import defaultdict
 from direction import Direction
 from policyType import PolicyType
 import matplotlib.pyplot as plt
-from plot_utils import heatmap, annotate_heatmap
+import matplotlib.patches as patches
 
 def decision(probability):
     result = random.random() < probability
@@ -101,14 +101,6 @@ class Gridworld:
         return [x,y], reward
 
     def runSimulation(self, maxEpisodes = 500, learningRate = 0.1):
-        self.actionValueFunctions = [[
-            {
-                Direction.UP : 0,
-                Direction.RIGHT : 0,
-                Direction.DOWN : 0,
-                Direction.LEFT : 0
-            } for _ in range(self.columns)] for _ in range(self.rows)]
-
         episodeRewards = np.empty(maxEpisodes, dtype=int)
         episodeRewards.fill(0)
         episodeRewardSum = 0
@@ -209,17 +201,6 @@ class Gridworld:
         print(splitLine)
         print ("")
 
-
-    def plotActionValueFunctions(self, title=""):
-        self.printActionValueMatrix()
-        m = self.getActionValueMatrix()
-
-        
-        # plt.title(title)
-        # im, _ = heatmap(m)
-        # annotate_heatmap(im)
-        # plt.show()
-
     def isBound(self, x, y):
         if (x == 0 or x == self.rows-1 or 
             y == 0 or y == self.columns-1):
@@ -233,3 +214,99 @@ class Gridworld:
             return True
         
         return False
+
+    def plotArrow(self, x, y, optimalPathStates):
+        _, action = self.getOptimalActionValue([x, y])
+
+        color = 'black'
+        if [x,y] in optimalPathStates:
+            color = 'green'
+
+        dx = 0
+        dy = 0
+        arrowWidth = 0.15
+        arrowLength = 0.3
+        arrowHeadWidth = 0.35
+        arrowHeadLength = 0.25
+
+        x = self.rows - x 
+        y = y + 1
+
+        if action == Direction.UP:
+            dx = 0
+            dy = arrowLength
+            x = x - (arrowLength + arrowHeadLength) / 2
+        elif action == Direction.RIGHT:
+            dx = arrowLength
+            dy = 0
+            arrowWidth = arrowWidth
+            arrowHeadWidth = arrowHeadWidth / 1.2
+            y = y - (arrowWidth + arrowHeadWidth) / 2
+        elif action == Direction.DOWN:
+            dx = 0
+            dy = -arrowLength
+            x = x + (arrowLength + arrowHeadLength) / 2
+        elif action == Direction.LEFT:
+            dx = -arrowLength
+            dy = 0
+            arrowWidth = arrowWidth
+            arrowHeadWidth = arrowHeadWidth / 1.2
+            y = y + (arrowWidth + arrowHeadWidth) / 2
+        
+        plt.arrow(y, x, dx, dy, head_width=arrowHeadWidth, head_length=arrowHeadLength, width=arrowWidth, color=color)
+
+    def getOptimalPathStates(self):
+        optimalStates = []
+        x, y = self.startX, self.startY
+        optimalStates.append([x, y])
+        
+        while not self.isTerminal([x,y]):
+            _, direction = self.getOptimalActionValue([x,y])
+            x, y = self.getNewCoordinatesBasedOnDirection(x, y, direction)
+            optimalStates.append([x,y])
+
+        return optimalStates
+
+    def plotLetter(self, x, y, letter):
+        plt.text(y + 0.75, self.rows - x - 0.15, letter, fontsize = 25)
+
+    def colorRectangle(self, x, y):
+        # Create a Rectangle patch
+        rect = patches.Rectangle((y + 0.5, self.rows - x - 0.5), 1,1, linewidth=0, facecolor='#B0B0B0')
+        axes = plt.gca()
+
+        # Add the patch to the Axes
+        axes.add_patch(rect)
+
+    def plotOptimalPath(self, title = ""):
+        optimalStates = self.getOptimalPathStates()
+
+        for x in range(self.rows):
+            for y in range(self.columns):
+                if (x == self.startX and y == self.startY) or self.isTerminal([x,y]):
+                    continue
+
+                self.plotArrow(x, y, optimalStates)
+
+        xTicks = np.arange(0, self.columns + 2, 1)
+        subXTicks = np.arange(0.5, self.columns + 1.5, 1)
+        yTicks = np.arange(0, self.rows + 2, 1)
+        subYTicks = np.arange(0.5, self.rows + 1.5, 1)
+
+        axes = plt.gca()
+        axes.set_xticks(xTicks)
+        axes.set_xticks(subXTicks, minor=True)
+        axes.set_yticks(yTicks)
+        axes.set_yticks(subYTicks, minor=True)
+        
+        axes.set_xlim([0.5, self.columns + 0.5])
+        axes.set_ylim([0.5, self.rows + 0.5])
+        
+
+        axes.grid(which='minor', alpha=0.5)
+        plt.xlabel(title)
+        
+
+
+        plt.show()
+        
