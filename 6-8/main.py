@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-from plot_utils import heatmap, annotate_heatmap
+from plot_utils import heatmap, annotate_heatmap, plotArrow
 import math
 
 def get_random_start_pos(gridworld):
@@ -72,42 +72,6 @@ def plotQ(Q, gridworld, title=''):
     annotate_heatmap(im)
     plt.show()
 
-def plotArrow(x, y, action):
-    color = 'black'
-
-    dx = 0
-    dy = 0
-    arrowWidth = 0.15
-    arrowLength = 0.3
-    arrowHeadWidth = 0.35
-    arrowHeadLength = 0.25
-
-    x = x 
-    y = y + 1
-
-    if action == 0:
-        dx = 0
-        dy = arrowLength
-        x = x - (arrowLength + arrowHeadLength) / 2
-    elif action == 1:
-        dx = arrowLength
-        dy = 0
-        arrowWidth = arrowWidth
-        arrowHeadWidth = arrowHeadWidth / 1.2
-        y = y - (arrowWidth + arrowHeadWidth) / 2
-    elif action == 2:
-        dx = 0
-        dy = -arrowLength
-        x = x + (arrowLength + arrowHeadLength) / 2
-    elif action == 3:
-        dx = -arrowLength
-        dy = 0
-        arrowWidth = arrowWidth
-        arrowHeadWidth = arrowHeadWidth / 1.2
-        y = y + (arrowWidth + arrowHeadWidth) / 2
-    
-    plt.arrow(y, x, dx, dy, head_width=arrowHeadWidth, head_length=arrowHeadLength, width=arrowWidth, color=color)
-
 def plotPolicy(Q, gridworld, title = ""):
     m = qDictToPolicy(Q, gridworld)
     height, width = len(m), len(m[0])
@@ -117,7 +81,7 @@ def plotPolicy(Q, gridworld, title = ""):
             if(not math.isnan(m[x][y])):
                 plotArrow(height - y, x, m[x][y])
             if(gridworld.grid[x][y] == 'G' or gridworld.grid[x][y] == 'P'):
-                plt.text(x + 0.75, height - y - 0.15, gridworld.grid[x][y], fontsize = 25)
+                plt.text(x + 0.75, height - y - 0.25, gridworld.grid[x][y], fontsize = 25)
 
     xTicks = np.arange(0, width + 2, 1)
     subXTicks = np.arange(0.5, width + 1.5, 1)
@@ -223,7 +187,7 @@ def main():
         grid = file.read()
 
     eps = 0.2
-    episodes = 1000
+    episodes = 10000
 
     random.seed(1)
     gw = GridWorld(grid)

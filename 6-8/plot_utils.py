@@ -113,3 +113,40 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
             texts.append(text)
 
     return texts
+
+
+def plotArrow(x, y, action):
+    color = 'black'
+
+    dx = 0
+    dy = 0
+    arrowWidth = 0.15
+    arrowLength = 0.3
+    arrowHeadWidth = 0.35
+    arrowHeadLength = 0.25
+
+    x = x 
+    y = y + 1
+
+    if action == 0:
+        dx = 0
+        dy = arrowLength
+        x = x - (arrowLength + arrowHeadLength) / 2
+    elif action == 1:
+        dx = arrowLength
+        dy = 0
+        arrowWidth = arrowWidth
+        arrowHeadWidth = arrowHeadWidth / 1.2
+        y = y - (arrowWidth + arrowHeadWidth) / 2
+    elif action == 2:
+        dx = 0
+        dy = -arrowLength
+        x = x + (arrowLength + arrowHeadLength) / 2
+    elif action == 3:
+        dx = -arrowLength
+        dy = 0
+        arrowWidth = arrowWidth
+        arrowHeadWidth = arrowHeadWidth / 1.2
+        y = y + (arrowWidth + arrowHeadWidth) / 2
+    
+    plt.arrow(y, x, dx, dy, head_width=arrowHeadWidth, head_length=arrowHeadLength, width=arrowWidth, color=color)
